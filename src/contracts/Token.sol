@@ -140,7 +140,7 @@ contract Token is Ownable {
         return (_hodlers[_balances[who].index] == who);
     }
 
-    function insertHodler(address who) public returns(uint index) {
+    function insertHodler(address who) public returns(uint) {
         if(!isHodler(who)) {
             _balances[who].index = _hodlers.push(who) - 1;
             return _hodlers.length - 1;
