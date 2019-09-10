@@ -40,7 +40,7 @@ contract Token is Ownable {
 
     function balanceOf(address who) public view returns (uint256) {
         if (who == owner) {
-            uint256 incirculation = _getInCirculation();
+            uint256 incirculation = getInCirculation();
             return totalSupply.sub(incirculation);
         } else {
             return _getBalance(who, now);
@@ -119,7 +119,7 @@ contract Token is Ownable {
         }
     }
 
-    function _getInCirculation() public view returns(uint256) {
+    function getInCirculation() public view returns(uint256) {
         uint256 cumlative = 0;
         uint256 timestamp = now;
 
