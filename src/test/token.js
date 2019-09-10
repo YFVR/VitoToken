@@ -82,14 +82,28 @@ contract.only("Token", function(accounts) {
     });
 
     it.only("Should get future balance", async function () {
+      await tokenInstance.transfer(ALICE, 1000000000, {from: OWNER});
+      let balance = await tokenInstance.balanceOf(ALICE);
+      assert.equal(Number(balance), 1000000000, "Balance should be 1000000000");
+
+      await helper.advanceTime(365 * 24 * 60 * 60 * 1000);
+
+      balance = await tokenInstance.balanceOf(ALICE);
+      assert.equal(Number(balance), 1060000000, "Balance should be 1060000000");
+    });
+  });
+
+  describe("Transfer tests", () => {
+    it.only("Should be able to transfer 60", async function () {
       await tokenInstance.transfer(ALICE, 500000000, {from: OWNER});
+
       let balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(balance), 500000000, "Balance should be 500000000");
 
       await helper.advanceTime(365 * 24 * 60 * 1000);
-
       balance = await tokenInstance.balanceOf(ALICE);
-      assert.equal(Number(balance), 500000000, "Balance should be 500000000");
+
+      assert.isTrue(balance > 500000000);
     });
   });
 
