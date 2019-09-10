@@ -59,6 +59,11 @@ contract.only("Token", function(accounts) {
       assert.equal(Number(actual), 600, "Should be 600");
     });
 
+    it.only("Should calc %6 interest on $10,000 principal over a full year", async function () {
+      const actual = await tokenInstance.calcInterest(1000000000, 365);
+      assert.equal(Number(actual), 60000000, "Should be 60000000");
+    });
+
     it.only("Should get 0 in circulation", async function () {
       const actual = await tokenInstance.getInCirculation();
       assert.equal(Number(actual), 0, "Should be 0");
@@ -86,7 +91,8 @@ contract.only("Token", function(accounts) {
       let balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(balance), 1000000000, "Balance should be 1000000000");
 
-      await helper.advanceTime(365 * 24 * 60 * 60 * 1000);
+      const seconds_in_a_day = 86400;
+      await helper.advanceTime(365 * seconds_in_a_day);
 
       balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(balance), 1060000000, "Balance should be 1060000000");
@@ -94,13 +100,14 @@ contract.only("Token", function(accounts) {
   });
 
   describe("Transfer tests", () => {
-    it.only("Should be able to transfer 60", async function () {
+    it.only("Should be able to transfer 600000000", async function () {
       await tokenInstance.transfer(ALICE, 500000000, {from: OWNER});
 
       let balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(balance), 500000000, "Balance should be 500000000");
 
-      await helper.advanceTime(365 * 24 * 60 * 1000);
+      const seconds_in_a_day = 86400;
+      await helper.advanceTime(365 * seconds_in_a_day);
       balance = await tokenInstance.balanceOf(ALICE);
 
       assert.isTrue(balance > 500000000);
