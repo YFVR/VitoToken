@@ -48,11 +48,11 @@ contract Token is Ownable {
     }
 
     function transfer(address to, uint256 value) public returns (bool) {
-        require(balanceOf(msg.sender) >= value, "Insufficient balance");
+        uint256 timestamp = now;
+        require(getBalanceAtTime(msg.sender, timestamp) >= value, "Insufficient balance");
 
         insertHodler(to);
-
-        uint256 timestamp = now;
+        
         if (msg.sender == owner) {
             _balances[owner].amount = _balances[owner].amount.sub(value);
         } else {
@@ -64,7 +64,8 @@ contract Token is Ownable {
             _balances[owner].amount = _balances[owner].amount.add(value);
         } else {
             _balances[to].timestamp = timestamp;
-            _balances[to].amount = getBalanceAtTime(to, timestamp).add(value);
+            //_balances[to].amount = getBalanceAtTime(to, timestamp).add(value);
+            _balances[to].amount = _balances[to].amount.add(value);
         }
 
         emit Transfer(msg.sender, to, value);
@@ -109,14 +110,18 @@ contract Token is Ownable {
     }
 
     function getBalanceAtTime(address who, uint256 timestamp) public view returns(uint256) {
-        if (_balances[who].amount < _min) {
-            return _balances[who].amount;
-        } else {
-            uint256 _delta = delta(_balances[who].timestamp, timestamp);
-            _delta = _delta.div(24 * 60 * 60);
+        if (_balances[who].amount > 0) {
+            if (_balances[who].amount < _min) {
+                return _balances[who].amount;
+            } else {
+                uint256 _delta = delta(_balances[who].timestamp, timestamp);
+                _delta = _delta.div(24 * 60 * 60);
 
-            return _balances[who].amount + calcInterest(_balances[who].amount, _delta);
+                return _balances[who].amount + calcInterest(_balances[who].amount, _delta);
+            }
         }
+    
+        return 0;
     }
 
     function getInCirculation() public view returns(uint256) {
