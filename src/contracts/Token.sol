@@ -49,7 +49,8 @@ contract Token is Ownable {
 
     function transfer(address to, uint256 value) public returns (bool) {
         uint256 timestamp = now;
-        //require(getBalanceAtTime(msg.sender, timestamp) >= value, "Insufficient balance");
+        uint256 currentSenderBalance = balanceOf(msg.sender);
+        require(currentSenderBalance >= value, "Insufficient balance");
 
         if (!isHodler(to)) {
             insertHodler(to);
@@ -59,14 +60,16 @@ contract Token is Ownable {
             _balances[owner].amount = _balances[owner].amount.sub(value);
         } else {
             _balances[msg.sender].timestamp = timestamp;
-            _balances[msg.sender].amount = getBalanceAtTime(msg.sender, timestamp).sub(value);
+            
+            _balances[msg.sender].amount = currentSenderBalance;
+            _balances[msg.sender].amount = _balances[msg.sender].amount.sub(value);
         }
 
         if (to == owner) {
             _balances[owner].amount = _balances[owner].amount.add(value);
         } else {
             _balances[to].timestamp = timestamp;
-            _balances[to].amount = getBalanceAtTime(to, timestamp).add(value);
+            _balances[to].amount = value; //getBalanceAtTime(to, timestamp).add(value);
 
             //emit Transfer(msg.sender, to, value);
             //_balances[to] = Balance(timestamp, value, 0); //_balances[to].amount.add(value);

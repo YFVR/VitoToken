@@ -103,21 +103,20 @@ contract.only("Token", function(accounts) {
     it.only("Should be able to transfer 520000000 out of 530000000", async function () {
       await tokenInstance.transfer(ALICE, 500000000, {from: OWNER});
 
-      let balance = await tokenInstance.balanceOf(ALICE);
-      assert.equal(Number(balance), 500000000, "Balance should be 500000000");
+      let alice_balance = await tokenInstance.balanceOf(ALICE);
+      assert.equal(Number(alice_balance), 500000000, "Balance should be 500000000");
 
       const seconds_in_a_day = 86400;
       await helper.advanceTime(365 * seconds_in_a_day);
-      balance = await tokenInstance.balanceOf(ALICE);
+      alice_balance = await tokenInstance.balanceOf(ALICE);
 
       //500000000 * 1.06 = 530000000 (6%)
-      // assert.isTrue(Number(balance) > 500000000);
-      assert.equal(Number(balance), 530000000);
+      assert.equal(Number(alice_balance), 530000000);
       
-      await tokenInstance.transfer(BOB, 520000000, {from: ALICE});
+      await tokenInstance.transfer(BOB, 500000000, {from: ALICE});
 
-      // balance = await tokenInstance.balanceOf(ALICE);
-      // assert.equal(Number(balance), 10000000);
+      alice_balance = await tokenInstance.balanceOf(ALICE);
+      assert.equal(Number(alice_balance), 30000000);
 
       // balance = await tokenInstance.balanceOf(BOB);
       // assert.equal(Number(balance), 520000000);
