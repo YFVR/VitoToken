@@ -69,10 +69,9 @@ contract Token is Ownable {
             _balances[owner].amount = _balances[owner].amount.add(value);
         } else {
             _balances[to].timestamp = timestamp;
-            _balances[to].amount = value; //getBalanceAtTime(to, timestamp).add(value);
 
-            //emit Transfer(msg.sender, to, value);
-            //_balances[to] = Balance(timestamp, value, 0); //_balances[to].amount.add(value);
+            uint256 currentReceiverBalance = balanceOf(to);
+            _balances[to].amount = currentReceiverBalance.add(value);
         }
 
         emit Transfer(msg.sender, to, value);

@@ -113,10 +113,10 @@ contract.only("Token", function(accounts) {
       //500000000 * 1.06 = 530000000 (6%)
       assert.equal(Number(alice_balance), 530000000);
       
-      await tokenInstance.transfer(BOB, 500000000, {from: ALICE});
+      await tokenInstance.transfer(BOB, 510000000, {from: ALICE});
 
       alice_balance = await tokenInstance.balanceOf(ALICE);
-      assert.equal(Number(alice_balance), 30000000);
+      assert.equal(Number(alice_balance), 20000000);
 
       // balance = await tokenInstance.balanceOf(BOB);
       // assert.equal(Number(balance), 520000000);
