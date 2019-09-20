@@ -118,8 +118,8 @@ contract.only("Token", function(accounts) {
       alice_balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(alice_balance), 20000000);
 
-      // balance = await tokenInstance.balanceOf(BOB);
-      // assert.equal(Number(balance), 520000000);
+      let balance = await tokenInstance.balanceOf(BOB);
+      assert.equal(Number(balance), 510000000);
     });
   });
 
