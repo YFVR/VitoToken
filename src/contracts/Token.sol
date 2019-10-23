@@ -40,31 +40,38 @@ contract Token is Ownable {
 
     function balanceOf(address who) public view returns (uint256) {
         if (who == owner) {
-            uint256 incirculation = _getInCirculation();
+            uint256 incirculation = getInCirculation();
             return totalSupply.sub(incirculation);
         } else {
-            return _getBalance(who, now);
+            return getBalanceAtTime(who, now);
         }
     }
 
     function transfer(address to, uint256 value) public returns (bool) {
-        require(balanceOf(msg.sender) >= value, "Insufficient balance");
-
-        insertHodler(to);
-
         uint256 timestamp = now;
+        uint256 currentSenderBalance = balanceOf(msg.sender);
+        require(currentSenderBalance >= value, "Insufficient balance");
+
+        if (!isHodler(to)) {
+            insertHodler(to);
+        }
+        
         if (msg.sender == owner) {
             _balances[owner].amount = _balances[owner].amount.sub(value);
         } else {
             _balances[msg.sender].timestamp = timestamp;
-            _balances[msg.sender].amount = _getBalance(msg.sender, timestamp).sub(value);
+            
+            _balances[msg.sender].amount = currentSenderBalance;
+            _balances[msg.sender].amount = _balances[msg.sender].amount.sub(value);
         }
 
         if (to == owner) {
             _balances[owner].amount = _balances[owner].amount.add(value);
         } else {
             _balances[to].timestamp = timestamp;
-            _balances[to].amount = _getBalance(to, timestamp).add(value);
+
+            uint256 currentReceiverBalance = balanceOf(to);
+            _balances[to].amount = currentReceiverBalance.add(value);
         }
 
         emit Transfer(msg.sender, to, value);
@@ -74,17 +81,17 @@ contract Token is Ownable {
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
         uint256 timestamp = now;
 
-        require(_getBalance(from, timestamp) >= value, "Insufficient balance");
-        require(_getBalance(to, timestamp).add(value) >= _getBalance(to, timestamp), "Insufficient balance");
+        require(getBalanceAtTime(from, timestamp) >= value, "Insufficient balance");
+        require(getBalanceAtTime(to, timestamp).add(value) >= getBalanceAtTime(to, timestamp), "Insufficient balance");
         require(allowed[from][msg.sender] >= value, "Insufficient balance");
         
         _balances[from].timestamp = now;
-        _balances[from].amount = _getBalance(from, timestamp).sub(value);
+        _balances[from].amount = getBalanceAtTime(from, timestamp).sub(value);
 
         allowed[from][msg.sender] = allowed[from][msg.sender].sub(value);
 
         _balances[to].timestamp = now;
-        _balances[to].amount = _getBalance(to, timestamp).add(value);
+        _balances[to].amount = getBalanceAtTime(to, timestamp).add(value);
 
         emit Transfer(from, to, value);
         return true;
@@ -108,18 +115,22 @@ contract Token is Ownable {
         return (amount * pa * perYear) / uint256(10) ** (decimals * 2);
     }
 
-    function _getBalance(address who, uint256 timestamp) private view returns(uint256) {
-        if (_balances[who].amount < _min) {
-            return _balances[who].amount;
-        } else {
-            uint256 _delta = delta(_balances[who].timestamp, timestamp);
-            _delta = _delta.div(24 * 60 * 60);
+    function getBalanceAtTime(address who, uint256 timestamp) public view returns(uint256) {
+        if (_balances[who].amount > 0) {
+            if (_balances[who].amount < _min) {
+                return _balances[who].amount;
+            } else {
+                uint256 _delta = delta(_balances[who].timestamp, timestamp);
+                _delta = _delta.div(24 * 60 * 60);
 
-            return _balances[who].amount + calcInterest(_balances[who].amount, _delta);
+                return _balances[who].amount + calcInterest(_balances[who].amount, _delta);
+            }
         }
+    
+        return 0;
     }
 
-    function _getInCirculation() public view returns(uint256) {
+    function getInCirculation() public view returns(uint256) {
         uint256 cumlative = 0;
         uint256 timestamp = now;
 
@@ -127,7 +138,7 @@ contract Token is Ownable {
             address who = _hodlers[i];
 
             if (who != owner) {
-                uint256 balance = _getBalance(who, timestamp);
+                uint256 balance = getBalanceAtTime(who, timestamp);
                 cumlative = cumlative.add(balance);
             }
         }
@@ -140,7 +151,7 @@ contract Token is Ownable {
         return (_hodlers[_balances[who].index] == who);
     }
 
-    function insertHodler(address who) public returns(uint index) {
+    function insertHodler(address who) public returns(uint) {
         if(!isHodler(who)) {
             _balances[who].index = _hodlers.push(who) - 1;
             return _hodlers.length - 1;
