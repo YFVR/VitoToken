@@ -1,7 +1,7 @@
 const Token = artifacts.require("Token");
 const helper = require("./helpers/truffleTestHelper");
 
-contract.only("Token", function(accounts) {
+contract("Token", function(accounts) {
   const OWNER = accounts[0];
   const ALICE = accounts[1];
   const BOB = accounts[2];
@@ -42,11 +42,6 @@ contract.only("Token", function(accounts) {
 
   describe("Interest tests", () => {
     it("Should get delta", async function () {
-      //const start = await tokenInstance._start();
-      //console.log(Number(start));
-
-      //await helper.advanceTime(6000);
-
       const actual = await tokenInstance.delta(0, 6000);
       console.log(Number(actual));
       console.log(actual);
@@ -97,10 +92,22 @@ contract.only("Token", function(accounts) {
       balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(balance), 1060000000, "Balance should be 1060000000");
     });
+
+    it.only("Ffuture balance should be the same if under the 50,000 min", async function () {
+      await tokenInstance.transfer(ALICE, 49999000, {from: OWNER});
+      let balance = await tokenInstance.balanceOf(ALICE);
+      assert.equal(Number(balance), 49999000, "Balance should be 49999000");
+
+      const seconds_in_a_day = 86400;
+      await helper.advanceTime(365 * seconds_in_a_day);
+
+      balance = await tokenInstance.balanceOf(ALICE);
+      assert.equal(Number(balance), 49999000, "Balance should be 49999000");
+    });
   });
 
   describe("Transfer tests", () => {
-    it.only("Should be able to transfer 520000000 out of 530000000", async function () {
+    it("Should be able to transfer 520000000 out of 530000000", async function () {
       await tokenInstance.transfer(ALICE, 500000000, {from: OWNER});
 
       let alice_balance = await tokenInstance.balanceOf(ALICE);
