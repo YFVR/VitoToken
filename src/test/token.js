@@ -12,7 +12,12 @@ contract("Token", function(accounts) {
     tokenInstance = await Token.new();
   });
 
-  describe("Stack tests", () => {
+  describe("Deploy tests", () => {
+    it.only("should set owner balance to 100,000,000,000 on deploy", async function () {
+      const actual = await tokenInstance.balanceOf(OWNER);
+      assert.equal(Number(actual), Number(100000000000000), "Should be 100,000,000,000 tokens");
+    });
+
     it("Owner should be a hodler", async function () {
       const actual = await tokenInstance.isHodler(OWNER);
       assert.isTrue(actual, "Should not be a hodler");
