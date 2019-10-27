@@ -19,9 +19,7 @@ contract Token is Ownable {
     //0.6 * 10 ** 4 (decimals)
     uint256 public pa = 600; //6% pa
     uint256 public rate = 16; //per day
-
-    uint256 private _min = 50000 * 10 ** decimals;
-
+    uint256 private _min = 500000000; //50,000 * 10 ** decimals;
     uint256 public _start;
 
     struct Balance {
