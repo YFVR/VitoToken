@@ -93,7 +93,7 @@ contract("Token", function(accounts) {
       assert.equal(Number(balance), 1060000000, "Balance should be 1060000000");
     });
 
-    it.only("Ffuture balance should be the same if under the 50,000 min", async function () {
+    it.only("should have the same future balance if under the 50,000 min", async function () {
       await tokenInstance.transfer(ALICE, 49999000, {from: OWNER});
       let balance = await tokenInstance.balanceOf(ALICE);
       assert.equal(Number(balance), 49999000, "Balance should be 49999000");
