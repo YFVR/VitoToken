@@ -1,5 +1,4 @@
 //var HDWalletProvider = require("truffle-hdwallet-provider");
-
 //var mnemonic = "tragic near rocket across biology shop push dragon jazz detail differ say";
 
 module.exports = {
@@ -17,7 +16,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.5.0"
+      version: "0.6.0"
     }
   }
 };
