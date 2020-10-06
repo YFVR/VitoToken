@@ -20,5 +20,3 @@ Decimals | 18
 ## Test accounts
 
 `tragic near rocket across biology shop push dragon jazz detail differ say`
-
-Owner ``

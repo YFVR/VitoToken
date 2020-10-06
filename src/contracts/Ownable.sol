@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
 contract Ownable {
@@ -5,7 +6,7 @@ contract Ownable {
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    constructor() {
+    constructor() public {
         owner = msg.sender;
     }
 

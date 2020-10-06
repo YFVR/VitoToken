@@ -7,18 +7,28 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Token is IERC20, Ownable {
     using SafeMath for uint;
 
-    string public name = "Virtual Token";
-    string public symbol = "VITO";
-    uint8 public decimals = 18;
-    uint256 public totalSupply = 100000000000000;
+    function name() public view returns (string memory) {
+        return "Virtual Token";
+    }
+
+    function symbol() public view returns (string memory) {
+        return "VITO";
+    }
+
+    function decimals() public view returns (uint8) {
+        return 18;
+    }
+    
+    function totalSupply() external view returns (uint256) {
+        return 100000000000000;
+    }
 
     mapping (address => uint256) private _balances;
-    mapping (address => mapping (address => uint256)) private allowed;
+    mapping (address => mapping (address => uint256)) private _allowances;
 
     constructor () public {
-        _balances[msg.sender] = totalSupply;
-
-        emit Transfer(msg.sender, totalSupply);
+        _balances[msg.sender] = 100000000000000;
+        emit Transfer(address(0), msg.sender, 100000000000000);
     }
 
     function balanceOf(address who) public view returns (uint256) {
@@ -26,61 +36,38 @@ contract Token is IERC20, Ownable {
     }
 
     function transfer(address to, uint256 value) public returns (bool) {
-        uint256 timestamp = now;
-        uint256 currentSenderBalance = balanceOf(msg.sender);
-        require(currentSenderBalance >= value, "Insufficient balance");
+        require(_balances[msg.sender] >= value, "Insufficient balance");
 
-        if (!isHodler(to)) {
-            insertHodler(to);
-        }
-        
-        if (msg.sender == owner) {
-            _balances[owner].amount = _balances[owner].amount.sub(value);
-        } else {
-            _balances[msg.sender].timestamp = timestamp;
-            
-            _balances[msg.sender].amount = currentSenderBalance;
-            _balances[msg.sender].amount = _balances[msg.sender].amount.sub(value);
-        }
-
-        if (to == owner) {
-            _balances[owner].amount = _balances[owner].amount.add(value);
-        } else {
-            _balances[to].timestamp = timestamp;
-
-            uint256 currentReceiverBalance = balanceOf(to);
-            _balances[to].amount = currentReceiverBalance.add(value);
-        }
+        _balances[msg.sender] = _balances[msg.sender].sub(value);
+        _balances[to] = _balances[to].add(value);
 
         emit Transfer(msg.sender, to, value);
         return true;
     }
 
     function transferFrom(address from, address to, uint256 value) public returns (bool) {
-        uint256 timestamp = now;
-
-        require(getBalanceAtTime(from, timestamp) >= value, "Insufficient balance");
-        require(getBalanceAtTime(to, timestamp).add(value) >= getBalanceAtTime(to, timestamp), "Insufficient balance");
-        require(allowed[from][msg.sender] >= value, "Insufficient balance");
+        require(_balances[from] >= value, "Insufficient balance");
+        require(_allowances[from][msg.sender] >= value, "Insufficient balance");
         
-        _balances[from].timestamp = now;
-        _balances[from].amount = getBalanceAtTime(from, timestamp).sub(value);
+        _balances[from] = _balances[from].sub(value);
+        _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
 
-        allowed[from][msg.sender] = allowed[from][msg.sender].sub(value);
-
-        _balances[to].timestamp = now;
-        _balances[to].amount = getBalanceAtTime(to, timestamp).add(value);
+        _balances[to] = _balances[to].add(value);
 
         emit Transfer(from, to, value);
         return true;
     }
 
-    function approve(address spender, uint256 amount) public returns (bool) {
+    function approve(address spender, uint256 amount) external returns (bool) {
         require(spender != address(0), "Invalid address");
 
-        allowed[msg.sender][spender] = amount;
+        _allowances[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
+    }
+
+    function allowance(address owner, address spender) external view returns (uint256) {
+        return 0;
     }
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
