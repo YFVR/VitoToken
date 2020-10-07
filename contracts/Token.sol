@@ -7,35 +7,36 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Token is IERC20, Ownable {
     using SafeMath for uint;
 
-    function name() public view returns (string memory) {
+    function name() public pure returns (string memory) {
         return "Virtual Token";
     }
 
-    function symbol() public view returns (string memory) {
+    function symbol() public pure returns (string memory) {
         return "YFVR";
     }
 
-    function decimals() public view returns (uint8) {
+    function decimals() public pure returns (uint8) {
         return 18;
     }
     
-    function totalSupply() external view returns (uint256) {
-        return 100000000000000;
+    uint256 private constant _totalSupply = 100000000000000;
+    function totalSupply() external view override returns (uint256) {
+        return _totalSupply;
     }
 
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
 
     constructor () public {
-        _balances[msg.sender] = 100000000000000;
-        emit Transfer(address(0), msg.sender, 100000000000000);
+        _balances[msg.sender] = _totalSupply;
+        emit Transfer(address(0), msg.sender, _balances[msg.sender]);
     }
 
-    function balanceOf(address who) public view returns (uint256) {
+    function balanceOf(address who) public view override returns (uint256) {
         return _balances[who];
     }
 
-    function transfer(address to, uint256 value) public returns (bool) {
+    function transfer(address to, uint256 value) public override returns (bool) {
         require(_balances[msg.sender] >= value, "Insufficient balance");
 
         _balances[msg.sender] = _balances[msg.sender].sub(value);
@@ -45,7 +46,7 @@ contract Token is IERC20, Ownable {
         return true;
     }
 
-    function transferFrom(address from, address to, uint256 value) public returns (bool) {
+    function transferFrom(address from, address to, uint256 value) public override returns (bool) {
         require(_balances[from] >= value, "Insufficient balance");
         require(_allowances[from][msg.sender] >= value, "Insufficient balance");
         
