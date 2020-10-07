@@ -12,7 +12,7 @@ contract Token is IERC20, Ownable {
     }
 
     function symbol() public view returns (string memory) {
-        return "VITO";
+        return "YFVR";
     }
 
     function decimals() public view returns (uint8) {
@@ -32,7 +32,7 @@ contract Token is IERC20, Ownable {
     }
 
     function balanceOf(address who) public view returns (uint256) {
-        _balances[who];
+        return _balances[who];
     }
 
     function transfer(address to, uint256 value) public returns (bool) {
@@ -58,16 +58,39 @@ contract Token is IERC20, Ownable {
         return true;
     }
 
-    function approve(address spender, uint256 amount) external returns (bool) {
-        require(spender != address(0), "Invalid address");
+    // function approve(address spender, uint256 amount) external returns (bool) {
+    //     require(spender != address(0), "Invalid address");
 
-        _allowances[msg.sender][spender] = amount;
-        emit Approval(msg.sender, spender, amount);
+    //     _allowances[msg.sender][spender] = amount;
+    //     emit Approval(msg.sender, spender, amount);
+    //     return true;
+    // }
+
+    function approve(address spender, uint256 amount) public virtual override returns (bool) {
+        _approve(_msgSender(), spender, amount);
         return true;
     }
 
-    function allowance(address owner, address spender) external view returns (uint256) {
-        return 0;
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
+        return _allowances[owner][spender];
+    }
+
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
+        return true;
+    }
+
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+        _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
+        return true;
+    }
+
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
     }
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
