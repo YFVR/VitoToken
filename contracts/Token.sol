@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Token is IERC20, Ownable {
     using SafeMath for uint;
 
-    private uint256 _lockperiod;
-
     function name() public pure returns (string memory) {
         return "Virtual Token";
     }
@@ -26,6 +24,8 @@ contract Token is IERC20, Ownable {
         return _totalSupply;
     }
 
+    private uint256 _lockperiod;
+    mapping (address => uint256) private _locks;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
 
