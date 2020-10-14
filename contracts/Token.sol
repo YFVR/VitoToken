@@ -25,13 +25,14 @@ contract Token is IERC20, Ownable {
     }
 
     private uint256 _lockperiod;
+    mapping (address => bool) private _whitelist;
     mapping (address => uint256) private _locks;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
 
     constructor () public {
         _balances[msg.sender] = _totalSupply;
-        _lockeriod = 30 days;
+        _lockperiod = 30 days;
         emit Transfer(address(0), msg.sender, _balances[msg.sender]);
     }
 
@@ -45,6 +46,8 @@ contract Token is IERC20, Ownable {
         _balances[msg.sender] = _balances[msg.sender].sub(value);
         _balances[to] = _balances[to].add(value);
 
+        _locks[to] = now + _lockperiod;
+
         emit Transfer(msg.sender, to, value);
         return true;
     }
@@ -52,6 +55,7 @@ contract Token is IERC20, Ownable {
     function transferFrom(address from, address to, uint256 value) public override returns (bool) {
         require(_balances[from] >= value, "Insufficient balance");
         require(_allowances[from][msg.sender] >= value, "Insufficient balance");
+        require(canSpend(from), "Still in lock period");
         
         _balances[from] = _balances[from].sub(value);
         _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
@@ -62,13 +66,9 @@ contract Token is IERC20, Ownable {
         return true;
     }
 
-    // function approve(address spender, uint256 amount) external returns (bool) {
-    //     require(spender != address(0), "Invalid address");
-
-    //     _allowances[msg.sender][spender] = amount;
-    //     emit Approval(msg.sender, spender, amount);
-    //     return true;
-    // }
+    function canSpend(address spender) public view returns (bool) {
+        return now > _locks[spender];
+    }
 
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
         _approve(_msgSender(), spender, amount);
@@ -87,6 +87,10 @@ contract Token is IERC20, Ownable {
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         _approve(msg.sender, spender, _allowances[msg.sender][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
         return true;
+    }
+
+    function updateWhiteList(address contractToWhitelist, bool isWhiteListed) public onlyOwner() {
+        _whitelist[contractToWhitelist] = isWhiteListed;
     }
 
     function _approve(address owner, address spender, uint256 amount) internal virtual {
