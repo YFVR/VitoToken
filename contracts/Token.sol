@@ -56,7 +56,8 @@ contract Token is IERC20, Ownable {
         require(_balances[from] >= value, "Insufficient balance");
         require(_allowances[from][msg.sender] >= value, "Insufficient balance");
         require(canSpend(from), "Still in lock period");
-        
+        require(_whitelist[from] == true, "Not in white list");
+
         _balances[from] = _balances[from].sub(value);
         _allowances[from][msg.sender] = _allowances[from][msg.sender].sub(value);
 
