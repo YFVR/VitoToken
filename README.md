@@ -17,6 +17,8 @@ Ticker | VITO
 Total Supply | 1,000,000,000
 Decimals | 18
 
-## Test accounts
 
-`tragic near rocket across biology shop push dragon jazz detail differ say`
+## Contracts 
+
+| Network | Owner | Contract |
+| Ropsten | `0xC29082511fEBc2185986d341ee8be3c9B2c66b66`| |
