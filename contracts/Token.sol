@@ -24,7 +24,7 @@ contract Token is IERC20, Ownable {
         return _totalSupply;
     }
 
-    private uint256 _lockperiod;
+    uint256 private _lockperiod;
     mapping (address => bool) private _whitelist;
     mapping (address => uint256) private _locks;
     mapping (address => uint256) private _balances;

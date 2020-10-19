@@ -21,4 +21,4 @@ Decimals | 18
 ## Contracts 
 
 | Network | Owner | Contract |
-| Ropsten | `0xC29082511fEBc2185986d341ee8be3c9B2c66b66`| |
+| Ropsten | `0xC29082511fEBc2185986d341ee8be3c9B2c66b66`| `0x3cd1d3b3698470c159b7e62e07b7ea9095f5ef2b` |
